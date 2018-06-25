@@ -78,10 +78,10 @@
       },
       jumpLiveVideo() {
         let href = window.location.href
-        var iTop = window.screen.height; //获得窗口的垂直位置;
+        var iTop = window.screen.height; //获得窗口的垂直位置;  
         var iLeft = window.screen.width; //获得窗口的水平位置;
         window.open(href.replace('#/live-notice','#/live-video'), '_blank', 'width='+iLeft+', height='+iTop+', toolbar=no, menubar=no, scrollbars=yes, resizable=yes, location=no, status=no')
-
+      
       }
     }
   }
@@ -93,6 +93,12 @@
   }
   .el-table--enable-row-transition .el-table__body td,.el-table td, .el-table th.is-leaf{
     background: #f1f1f1;
+  }
+  .el-table--enable-row-hover .el-table__body tr:hover>td{
+    color: #409eff;
+  }
+  .el-table--enable-row-hover .el-table__body:hover{
+    border-left:2px solid #409eff;
   }
 </style>
 

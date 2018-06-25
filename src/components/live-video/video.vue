@@ -128,17 +128,17 @@
     </object>
   </el-container>
    <div id="promDiv" style="background:rgba(0,0,0,.8);width:100%;height:100%;position:absolute;top:0;right:0;left:0;bottom:0;margin:auto;z-index:9999;display:none">
-
+      
           <p style="width:40%;height:90%;margin:auto;margin-top:2%">
           <img src="../../assets/prompt.png" style="height:100%;width:100%;margin-top:20px;margin-bottom:20px;margin:0 auto">
           </p>
-
-
+     
+          
     </div>
-
+    
   </div>
 </template>
-
+ 
 <script>
 import 'babel-polyfill'
 import { mapState, mapMutations } from 'vuex'
@@ -161,8 +161,7 @@ export default {
       loginCode: '',
       roomCode: '',
       roomMembers: {}, // 缓存已经获取到的用户名
-      myRole: 0, // 角色编码
-      sendMsgSuccss: true
+      myRole: 0 // 角色编码
     }
   },
   mixins: [videoMixins],
@@ -178,11 +177,10 @@ export default {
         this.getNotice()
       }
     })
-    this.sdkInit()
-    window.onbeforeunload = function () {
+    window.onbeforeunload = function () { 
       this.sdk&&this.sdk.logout(function () {}, function () {})
     }
-    window.onunload = function () {
+    window.onunload = function () { 
       this.sdk&&this.sdk.unInit()
     }
   },
@@ -225,7 +223,6 @@ export default {
       this.sdk.login(this.loginCode, this.userSig, this.loginSuccess, this.loginError)
     },
     sdkInitError (data) {
-      this.sdk && this.sdk.unInit()
       console.log('初始化失败',data)
     },
     joinSuccess (data) {
@@ -369,8 +366,6 @@ export default {
     // 发送消息
     enterMsg (e) {
       if (!this.selfMessage.trim()) return false
-      if (!sendMsgSuccss) return false
-      this.sendMsgSuccss = false
       let message = this.initMessage(this.E_iLiveMessageElemType.TEXT, this.selfMessage)
       this.sdk.sendGroupMessage(message,this.enterMsgSuccess,this.enterMsgError)
     },
@@ -386,20 +381,34 @@ export default {
       })
       this.autoShowBottom()
       this.selfMessage = ''
-      this.sendMsgSuccss = true
     },
     enterMsgError () {},
     // 申请上麦
     applyMicrophone () {
+        // 判断是否已上麦
+//        if (typeof this.mySelfRenderVideoIndex === 'number') {
+//          this.$message({
+//            type: 'error',
+//            message: '您已上麦!'
+//          })
+//          return false
+//        }
+//        if (!this.memberVideo.find(item => item.isFreeRender())) {
+//          this.$message({
+//            type: 'error',
+//            message: '上麦用户已满!'
+//          })
+//          return false
+//        }
         this.sdk.changeRole('LiveGuest', this.applyMicrophoneSuccess, this.applyMicrophoneError)
     },
     // 改变角色成功
     applyMicrophoneSuccess () {
       // 获取摄像头列表
-      let getCameraList = this.sdk.getCameraList()
-      if (getCameraList.code === 0) {
+//      let getCameraList = this.sdk.getCameraList()
+//      if (getCameraList.code === 0) {
         // 打开摄像头
-        this.sdk.openCamera(getCameraList.devices[0].id)
+//        this.sdk.openCamera(getCameraList.devices[0].id)
         // 哪个视频窗口没有渲染就渲染哪个
 //        let index = this.memberVideo.findIndex(item => item.isFreeRender())
 //        if (index !== -1) {
@@ -428,12 +437,12 @@ export default {
             })
           }
 //        }
-      } else {
-        this.$message({
-          type: 'info',
-          message: '获取摄像头失败'
-        })
-      }
+//      } else {
+//        this.$message({
+//          type: 'info',
+//          message: '获取摄像头失败'
+//        })
+//      }
     },
     applyMicrophoneError (err) {
       console.log('改变角色失败', err)
@@ -451,8 +460,7 @@ export default {
       this.sdk.changeRole('Guest', this.closeMicSuccess, this.applyMicrophoneError)
     },
     closeMicSuccess () {
-      this.sdk.closeCamera() // 关闭摄像头
-      this.sdk.closeMic() // 关闭麦克风
+      this.sdk.closeCamera()
 //      this.memberVideo[this.mySelfRenderVideoIndex].freeRender()
       let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '2056')
       this.sdk.sendGroupMessage(message,this.msgSendSuccess,this.enterMsgError)
@@ -531,7 +539,7 @@ export default {
       padding: 5px;
       /*height:calc(100% - 150px);*/
       /*max-height: 710px;*/
-      height: calc(100% - 133px);
+      height: 86%;
       overflow: hidden;
       font-size: 14px;
       color: white;
@@ -547,7 +555,7 @@ export default {
         background-color: #34495e;
         color:white;
         border-top: none;
-        height: calc(100% - 30px);
+        height: calc(100% - 0px);
         overflow: auto;
 
         li {
@@ -565,11 +573,7 @@ export default {
           /*background-color: #233342;*/
         }
           &:hover{
-             background-color: rgba(64,158,255,.2);
-           }
-          &:last-child {
-            margin-bottom: 20px;
-           }
+             background-color: rgba(64,158,255,.2);}
         }
       }
     }
