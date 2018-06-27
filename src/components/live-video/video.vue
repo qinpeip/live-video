@@ -128,17 +128,17 @@
     </object>
   </el-container>
    <div id="promDiv" style="background:rgba(0,0,0,.8);width:100%;height:100%;position:absolute;top:0;right:0;left:0;bottom:0;margin:auto;z-index:9999;display:none">
-      
+
           <p style="width:40%;height:90%;margin:auto;margin-top:2%">
           <img src="../../assets/prompt.png" style="height:100%;width:100%;margin-top:20px;margin-bottom:20px;margin:0 auto">
           </p>
-     
-          
+
+
     </div>
-    
+
   </div>
 </template>
- 
+
 <script>
 import 'babel-polyfill'
 import { mapState, mapMutations } from 'vuex'
@@ -166,35 +166,55 @@ export default {
   },
   mixins: [videoMixins],
   created () {
-    this.$ajax.post('/live/Login').then(res => {
-      if (res.data.errorCode == 0) {
-        this.getRoomCode()
-        this.changeUserSig(res.data.data.userSig) // 存储userSig
-        this.changeToken(res.data.data.token) // 存储token
-        window.sessionStorage.setItem('loginName', res.data.data.loginName)
-        // 获取房间号
-        this.sdkInit(res.data.data.Code)
-        this.getNotice()
-      }
-    })
-    window.onbeforeunload = function () { 
+    window.onbeforeunload = function () {
       this.sdk&&this.sdk.logout(function () {}, function () {})
     }
-    window.onunload = function () { 
+    window.onunload = function () {
       this.sdk&&this.sdk.unInit()
     }
   },
+  mounted () {
+    this.$nextTick(function () {
+      this.sdkInit()
+    })
+  },
   methods: {
     ...mapMutations(['changeUserSig', 'changeToken', 'changeSdk', 'changeVideoRender', 'changeMsg', 'changeMemberVideo', 'changeVideoRenderShare']),
-    sdkInit (code) {
-      // 接收code
-      this.loginCode = code
+    sdkInit () {
       var ILiveSDK = this.ILiveSDK
       var sdk = new ILiveSDK(1400084330, 25442, 'cabid')
       // 赋值sdk
       this.changeSdk(sdk)
       // sdk 初始化
       this.sdk.init(this.sdkInitSuccess, this.sdkInitError)
+    },
+    dxnLogin () {
+      this.$ajax.post('/live/Login').then(res => {
+        if (res.data.errorCode == 0) {
+          this.getRoomCode()
+          this.changeUserSig(res.data.data.userSig) // 存储userSig
+          this.changeToken(res.data.data.token) // 存储token
+          window.sessionStorage.setItem('loginName', res.data.data.loginName)
+          // 获取房间号
+          this.getNotice()
+          // 接收code
+          this.loginCode = res.data.data.Code
+          // 初始化视频渲染器
+          let ILiveRender = this.ILiveRender
+          // 主视频渲染器
+          this.changeVideoRender(new ILiveRender('render0'))
+          // 连麦观众视频渲染
+//      this.changeMemberVideo([new ILiveRender('render1'), new ILiveRender('render2'), new ILiveRender('render3')])
+          this.sdk.setForceOfflineListener(function () {})
+          this.sdk.setRoomDisconnectListener(function () {})
+          this.sdk.setRoomEventListener(this.roomEvent)
+          this.sdk.setDeviceOperationCallback(function () {})
+          //监听消息事件
+          this.sdk.setMessageListener(this.listenerMsg)
+          // sdk登陆
+          this.sdk.login(this.loginCode, this.userSig, this.loginSuccess, this.loginError)
+        }
+      })
     },
     initMessage (type, text) {
       // 初始化消息
@@ -207,20 +227,7 @@ export default {
       return message
     },
     sdkInitSuccess (data) { // sdk初始化成功后的回调
-      // 初始化视频渲染器
-      let ILiveRender = this.ILiveRender
-      // 主视频渲染器
-      this.changeVideoRender(new ILiveRender('render0'))
-      // 连麦观众视频渲染
-//      this.changeMemberVideo([new ILiveRender('render1'), new ILiveRender('render2'), new ILiveRender('render3')])
-      this.sdk.setForceOfflineListener(function () {})
-      this.sdk.setRoomDisconnectListener(function () {})
-      this.sdk.setRoomEventListener(this.roomEvent)
-      this.sdk.setDeviceOperationCallback(function () {})
-      //监听消息事件
-      this.sdk.setMessageListener(this.listenerMsg)
-      // sdk登陆
-      this.sdk.login(this.loginCode, this.userSig, this.loginSuccess, this.loginError)
+      this.dxnLogin()
     },
     sdkInitError (data) {
       console.log('初始化失败',data)
