@@ -14,9 +14,12 @@
         <div class="member">
           <div class="member-header">当前听众</div>
           <ul>
-            <li v-for="(item, index) in members" :key="index">{{item.id}}
+            <li v-for="(item, index) in members" :key="index">
+              <el-tooltip class="item" effect="dark" :content="item.id" :disabled="item.id.length < 10" placement="top">
+                <div class="fl">{{item.id}}</div>
+              </el-tooltip>
               <label class="fr">
-                <i class="iconfont icon-xinhao" style="font-size: 20px; color: green" v-if="item.role==2"></i>
+                <i class="iconfont icon-xinhao" style="font-size: 20px; color: green" ></i>
                 <i class="iconfont icon-xinhao" style="font-size: 20px;" v-if="item.role==0"></i>
               </label>
             </li>
@@ -148,7 +151,9 @@ export default {
     return {
       notice: '',
       master: [],
-      members: [],
+      members: [
+        
+      ],
       messages: [],
       selfMessage: '',
       isReload: false,
@@ -581,6 +586,13 @@ export default {
         }
           &:hover{
              background-color: rgba(64,158,255,.2);}
+        div {
+          float: left;
+          width: 149px;
+          white-space:nowrap;
+          overflow:hidden;
+          text-overflow:ellipsis;
+        }
         }
       }
     }
