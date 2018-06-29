@@ -719,7 +719,7 @@ export default {
   .chat-content {
     height: calc(100% - 50px);
     width: 100%;
-    background-color: #f2f2f2;
+    background-color: rgba(192, 196, 204, 1);
     overflow-x: hidden;
     overflow-y: auto;
     position: relative;
