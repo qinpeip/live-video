@@ -169,18 +169,22 @@ ILiveSDK.prototype = {
             alert('浏览器版本有误，只能为32位的IE8/IE9/IE10以及32位或64位的IE11,当前版本 ' + JSON.stringify(detect));
             return;
         }
-        this.ilive.initSdk(this.appid, this.accountType, function () {
-            if(suc) {
+      this.ilive.release()
+        setTimeout(function () {
+          console.log('开始初始化')
+          this.ilive.initSdk(this.appid, this.accountType, function () {
+              if(suc) {
                 suc();
-            }
-        },
-        function (msg) {
-            if (err) {
+              }
+            },
+            function (msg) {
+              if (err) {
                 var obj = JSON.parse(msg);
                 err(obj);
+              }
             }
-        }
-        );
+          );
+        }.bind(this),1000)
     },
 
     /**

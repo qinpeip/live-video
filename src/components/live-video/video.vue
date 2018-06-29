@@ -152,7 +152,7 @@ export default {
       notice: '',
       master: [],
       members: [
-        
+
       ],
       messages: [],
       selfMessage: '',
@@ -171,10 +171,10 @@ export default {
   },
   mixins: [videoMixins],
   created () {
-    window.onbeforeunload = function () {
+    window.onbeforeunload = () => {
       this.sdk&&this.sdk.logout(function () {}, function () {})
     }
-    window.onunload = function () {
+    window.onunload = () => {
       this.sdk&&this.sdk.unInit()
     }
   },
