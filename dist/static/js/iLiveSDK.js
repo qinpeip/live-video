@@ -79,7 +79,6 @@
 * @param {number} accountType - 腾讯云分配的accoutType
 * @param {string} iliveSDK - html页面中iLiveSDK object的ID
 */
-/* eslint-disable */
 function ILiveSDK(appid, accountType, iliveSDKObj) {
     this.appid = appid;
     this.accountType = accountType;
@@ -169,18 +168,18 @@ ILiveSDK.prototype = {
             alert('浏览器版本有误，只能为32位的IE8/IE9/IE10以及32位或64位的IE11,当前版本 ' + JSON.stringify(detect));
             return;
         }
-        this.ilive.initSdk(this.appid, this.accountType, function () {
-            if(suc) {
+          this.ilive.initSdk(this.appid, this.accountType, function () {
+              if(suc) {
                 suc();
-            }
-        },
-        function (msg) {
-            if (err) {
+              }
+            },
+            function (msg) {
+              if (err) {
                 var obj = JSON.parse(msg);
                 err(obj);
+              }
             }
-        }
-        );
+          );
     },
 
     /**
@@ -789,7 +788,7 @@ ILiveSDK.prototype = {
             if (suc) {
                 suc();
             }
-        }, function (msg) {
+        }, function (meg) {
             if (err) {
                 var obj = JSON.parse(msg);
                 err(obj);
@@ -1102,9 +1101,7 @@ var E_iLiveAuthBits = {
     AuthBit_LiveGuest: 0xFFFFFFFE,
     /** 普通观众权限位(只有下行数据权限) */
     AuthBit_Guest: 0x000000AA,
-};
-
-import Vue from 'vue'
+};import Vue from 'vue'
 Vue.prototype.ILiveSDK = ILiveSDK
 Vue.prototype.ILiveRender = ILiveRender
 Vue.prototype.ILiveMessageElem = ILiveMessageElem

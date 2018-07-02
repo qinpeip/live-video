@@ -24,13 +24,18 @@ export default new Router({
         path: '/live-notice',
         name: 'LiveNotice',
         component: LiveNotice
-      }
+      },
+        {
+          path: '/live-video',
+          name: 'video',
+          component: video
+        }
       ]
-    },
-    {
-      path: '/live-video',
-      name: 'video',
-      component: video
-    },
+    }
+    // {
+    //   path: '/live-video',
+    //   name: 'video',
+    //   component: video
+    // },
   ]
 })

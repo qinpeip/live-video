@@ -118,8 +118,15 @@ export default {
     getRoomCode () {
       this.$ajax.post('/live/GetRoomList').then(res => {
         if (res.data.errorCode == 0) {
-          this.roomCode = res.data.data.rooms[0].info.roomnum
-          this.ReportMemId(res.data.data.rooms[0].info.roomnum)
+          var roomCode = res.data.data.rooms[0] ? res.data.data.rooms[0].info.roomnum : ''
+
+          this.roomCode = roomCode
+
+          this.ReportMemId(roomCode)
+
+          // sdk登陆
+          console.log('登陆请求成功开始sdk登陆')
+          this.sdk.login(this.loginCode, this.userSig, this.loginSuccess, this.loginError)
         }
       })
     },

@@ -19,7 +19,7 @@
                 <div class="fl">{{item.id}}</div>
               </el-tooltip>
               <label class="fr">
-                <i class="iconfont icon-xinhao" style="font-size: 20px; color: green" ></i>
+                <i class="iconfont icon-xinhao" style="font-size: 20px; color: green" v-if="item.role==2"></i>
                 <i class="iconfont icon-xinhao" style="font-size: 20px;" v-if="item.role==0"></i>
               </label>
             </li>
@@ -87,6 +87,10 @@
                   <!--申 请 上 麦-->
                   <!--<i class="iconfont icon-maikefeng"></i>-->
                 <!--</el-button>-->
+                <!--<el-button type="primary" size="small" @click="logonOut" circle>-->
+                   <!--退出-->
+                  <!--<i class="iconfont icon-52jingyin"></i>-->
+                <!--</el-button>-->
                 <el-button type="primary" size="small" @click="downMicrophone" circle>
                   下 麦
                   <i class="iconfont icon-maikefeng-jingyin-tianchongsvg"></i>
@@ -95,6 +99,7 @@
                   {{soundModel}}
                   <i class="iconfont icon-52jingyin"></i>
                 </el-button>
+
                 <!--<el-button type="primary" size="small" @click="openSpeaker">-->
                   <!--打开扬声器-->
                   <!--<i class="iconfont icon-52jingyin"></i>-->
@@ -125,9 +130,7 @@
         <!--</div>-->
       <!--</el-aside>-->
     </el-container>
-    <object id="cabid"
-            classid="CLSID:54E71417-216D-47A2-9224-C991A099C531"
-            codebase="../../../static/js/iLiveSDK.cab#version=1,6,0,0">
+    <object id="cabid" classid="CLSID:54E71417-216D-47A2-9224-C991A099C531" codebase="../../../static/js/iLiveSDK.cab#version=1,7,1,0">
     </object>
   </el-container>
    <div id="promDiv" style="background:rgba(0,0,0,.8);width:100%;height:100%;position:absolute;top:0;right:0;left:0;bottom:0;margin:auto;z-index:9999;display:none">
@@ -135,7 +138,6 @@
           <p style="width:40%;height:90%;margin:auto;margin-top:2%">
           <img src="../../assets/prompt.png" style="height:100%;width:100%;margin-top:20px;margin-bottom:20px;margin:0 auto">
           </p>
-
 
     </div>
 
@@ -171,11 +173,21 @@ export default {
   },
   mixins: [videoMixins],
   created () {
-    window.onbeforeunload = () => {
-      this.sdk&&this.sdk.logout(function () {}, function () {})
+    window.onbeforeunload = (e) => {
+      // 退出房间
+       this.sdk.quitRoom(function(){
+        alert('退出房间成功')
+        this.sdk.closeSpeaker()
+        return this.sdk.logout(this.logoutSuccess, this.logoutError)
+      }.bind(this), function (err) {console.log(err);alert('退出房间失败', err)})
     }
     window.onunload = () => {
-      this.sdk&&this.sdk.unInit()
+      // 退出房间
+//      return this.sdk.quitRoom(function(){
+//        alert('退出房间成功')
+//        this.sdk.closeSpeaker()
+//        return this.sdk.logout(this.logoutSuccess, this.logoutError)
+//      }.bind(this), function (err) {alert('退出房间失败', err)})
     }
   },
   mounted () {
@@ -187,7 +199,7 @@ export default {
     ...mapMutations(['changeUserSig', 'changeToken', 'changeSdk', 'changeVideoRender', 'changeMsg', 'changeMemberVideo', 'changeVideoRenderShare']),
     sdkInit () {
       var ILiveSDK = this.ILiveSDK
-      var sdk = new ILiveSDK(1400084330, 25442, 'cabid')
+      var sdk = new ILiveSDK(1400108533, 30445, 'cabid')
       // 赋值sdk
       this.changeSdk(sdk)
       // sdk 初始化
@@ -196,11 +208,13 @@ export default {
     dxnLogin () {
       this.$ajax.post('/live/Login').then(res => {
         if (res.data.errorCode == 0) {
+          // 获取房间号
           this.getRoomCode()
+
           this.changeUserSig(res.data.data.userSig) // 存储userSig
           this.changeToken(res.data.data.token) // 存储token
           window.sessionStorage.setItem('loginName', res.data.data.loginName)
-          // 获取房间号
+
           this.getNotice()
           // 接收code
           this.loginCode = res.data.data.Code
@@ -211,13 +225,19 @@ export default {
           // 连麦观众视频渲染
 //      this.changeMemberVideo([new ILiveRender('render1'), new ILiveRender('render2'), new ILiveRender('render3')])
           this.sdk.setForceOfflineListener(function () {})
+
           this.sdk.setRoomDisconnectListener(function () {})
+
           this.sdk.setRoomEventListener(this.roomEvent)
+
           this.sdk.setDeviceOperationCallback(function () {})
+
           //监听消息事件
+
           this.sdk.setMessageListener(this.listenerMsg)
-          // sdk登陆
-          this.sdk.login(this.loginCode, this.userSig, this.loginSuccess, this.loginError)
+
+          // 直接加入不走登陆
+//          this.sdk.joinRoom(this.roomCode, this.E_iLiveAuthBits.AuthBit_Guest, 'Guest', this.joinSuccess, this.joinError)
         }
       })
     },
@@ -232,12 +252,15 @@ export default {
       return message
     },
     sdkInitSuccess (data) { // sdk初始化成功后的回调
+      console.log('初始化成功')
+
       this.dxnLogin()
     },
     sdkInitError (data) {
       console.log('初始化失败',data)
     },
     joinSuccess (data) {
+      console.log('加入房间成功')
       // 打开扬声器
       this.openSpeaker()
       // 发送群消息
@@ -270,12 +293,14 @@ export default {
       let ILiveDeviceList=this.sdk.getSpeakerList()
       if (ILiveDeviceList.code === 0) {
         ILiveDeviceList.devices.forEach(item => {
+          console.log('打开扬声器')
           this.sdk.openSpeaker(item.id)
         })
       }
     },
     // 登陆成功后
     loginSuccess (data) {
+      console.log('登陆成功')
       // 加入房间
       this.sdk.joinRoom(this.roomCode, this.E_iLiveAuthBits.AuthBit_Guest, 'Guest', this.joinSuccess, this.joinError)
     },
@@ -283,10 +308,10 @@ export default {
       console.log('登陆失败', data)
     },
     logoutSuccess (data) {
-      console.log('登出成功', data)
+      console.log(this.sdk);
+      this.sdk.unInit()
     },
     logoutError (data) {
-      console.log('登出失败', data)
     },
     // 监听消息
     listenerMsg (data) {
@@ -301,11 +326,11 @@ export default {
       let content = ''
       data.elems.forEach(item => {
         if (item.type == 0) {
-        this.messages.push({
-          type: item.type,
-          content: item.content,
-          name: name
-        })
+          this.messages.push({
+            type: item.type,
+            content: item.content,
+            name: name
+          })
         this.autoShowBottom()
         }
         if (item.type === 1) {
@@ -395,39 +420,12 @@ export default {
       this.selfMessage = ''
     },
     enterMsgError () {},
-    // 申请上麦
+    // 上麦
     applyMicrophone () {
-        // 判断是否已上麦
-//        if (typeof this.mySelfRenderVideoIndex === 'number') {
-//          this.$message({
-//            type: 'error',
-//            message: '您已上麦!'
-//          })
-//          return false
-//        }
-//        if (!this.memberVideo.find(item => item.isFreeRender())) {
-//          this.$message({
-//            type: 'error',
-//            message: '上麦用户已满!'
-//          })
-//          return false
-//        }
         this.sdk.changeRole('LiveGuest', this.applyMicrophoneSuccess, this.applyMicrophoneError)
     },
     // 改变角色成功
     applyMicrophoneSuccess () {
-      // 获取摄像头列表
-//      let getCameraList = this.sdk.getCameraList()
-//      if (getCameraList.code === 0) {
-        // 打开摄像头
-//        this.sdk.openCamera(getCameraList.devices[0].id)
-        // 哪个视频窗口没有渲染就渲染哪个
-//        let index = this.memberVideo.findIndex(item => item.isFreeRender())
-//        if (index !== -1) {
-//          this.memberVideo[index].setIdentifer(this.loginCode)
-//          this.showFont[index].code = this.loginCode
-//          this.showFont[index].isShow = false
-//          this.mySelfRenderVideoIndex = index
           //获取麦克风列表
           let ILiveDeviceList = this.sdk.getMicList()
           if (ILiveDeviceList.code === 0) {
@@ -448,27 +446,12 @@ export default {
               message: '获取麦克风失败'
             })
           }
-//        }
-//      } else {
-//        this.$message({
-//          type: 'info',
-//          message: '获取摄像头失败'
-//        })
-//      }
     },
     applyMicrophoneError (err) {
       console.log('改变角色失败', err)
     },
     // 下麦事件
     downMicrophone () {
-      // 判断是否已上麦
-//      if (typeof this.mySelfRenderVideoIndex !== 'number') {
-//        this.$message({
-//          type: 'error',
-//          message: '您还没有上麦!'
-//        })
-//        return false
-//      }
       this.sdk.changeRole('Guest', this.closeMicSuccess, this.applyMicrophoneError)
     },
     closeMicSuccess () {
@@ -494,8 +477,6 @@ export default {
     // 私聊
     tellToOne (row) {
       this.openPrivateChat = true
-//      this.selfMessage = ''
-//      this.selfMessage = `对 ${row.Name} 说:`
     },
     // 进入全屏
     showFull () {
@@ -504,6 +485,14 @@ export default {
     // 消息发送成功后显示最新的一条数据
     autoShowBottom () {
       this.$refs.chatContent.scrollTop = this.$refs.chatContent.scrollHeight
+    },
+    logonOut () {
+      alert('退出开始')
+      this.sdk.quitRoom(function(){
+        alert('退出房间成功')
+        this.sdk.closeSpeaker()
+        return this.sdk.logout(this.logoutSuccess, this.logoutError)
+      }.bind(this), function (err) {alert('退出房间失败', err)})
     }
   },
   computed: {
@@ -588,11 +577,14 @@ export default {
              background-color: rgba(64,158,255,.2);}
         div {
           float: left;
-          width: 149px;
+          width: 132px;
           white-space:nowrap;
           overflow:hidden;
           text-overflow:ellipsis;
         }
+        &:last-child {
+      margin-bottom: 30px;
+         }
         }
       }
     }
