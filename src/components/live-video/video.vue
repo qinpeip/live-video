@@ -1,6 +1,6 @@
 ﻿<template>
 <div class="main-body">
-  <el-container style="min-width:1300px; max-width: 1600px;padding-bottom: 20px;margin: 0 auto">
+  <el-container style="min-width:1146px; max-width: 1600px;padding-bottom: 20px;margin: 0 auto">
     <el-header>
       <div class="walk-word">
         直播公告: {{notice}}
@@ -81,7 +81,7 @@
                   </div>
                 </div>
               </el-col>
-              <el-col :span="2" class="cz">
+              <el-col :span="2" class="cz" style="height: 100%;">
                 <h1>操作</h1>
                 <!--<el-button type="primary" size="small" @click="applyMicrophone">-->
                   <!--申 请 上 麦-->
@@ -660,7 +660,7 @@ export default {
       overflow: hidden;
     }
     .el-footer {
-      padding: 0px 0 15px 0;
+      padding: 0px 0 1px 0;
   .video-footer {
     /*border: 2px solid rgba(229,228,228,.3);*/
     border-radius: 5px;
