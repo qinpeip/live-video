@@ -36,7 +36,6 @@
               </template>
             </el-table-column>
           </el-table>
-          <el-button @click="jumpLiveVideo">进入直播间</el-button>
           <div class="page">
             <el-pagination
               background
