@@ -3,8 +3,10 @@
     "",
     "\\src",
     "\\src\\components",
-    "\\src\\components\\live-other"
+    "\\src\\components\\live-other",
+    "\\src\\components\\live-video",
+    "\\src\\components\\mixins"
   ],
-  "SelectedNode": "\\src\\components\\live-other\\LiveNotice.vue",
+  "SelectedNode": "\\src\\components\\mixins\\video-mixins.js",
   "PreviewInSolutionExplorer": false
 }

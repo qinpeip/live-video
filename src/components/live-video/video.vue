@@ -2,7 +2,7 @@
 <div class="main-body">
   <el-container style="min-width:1146px; max-width: 1600px;padding-bottom: 20px;margin: 0 auto">
     <el-header>
-      <div class="walk-word">
+      <div class="walk-word" v-if="shoHidden">
         直播公告: {{notice}}
       </div>
     </el-header>
@@ -151,6 +151,7 @@ import videoMixins from '../mixins/video-mixins'
 export default {
   data () {
     return {
+      shoHidden: true,
       notice: '',
       master: [],
       members: [

@@ -65,6 +65,7 @@ export default {
       //   var WshShell = new ActiveXObject('WScript.Shell')
       //   WshShell.SendKeys('{F11}')
       // }
+      this.shoHidden = false
       ele.style.position = 'fixed'
       ele.style.left = '0'
       ele.style.top = '0'
@@ -80,6 +81,7 @@ export default {
       ele.style.height = 'calc(100% - 10px);'
       ele.style.width = '100%'
       ele.style.zIndex = '0'
+      this.shoHidden = true
   // var de = document
   // if (document.exitFullscreen) {
   //   document.exitFullscreen()
