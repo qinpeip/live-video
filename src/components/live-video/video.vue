@@ -176,10 +176,10 @@ export default {
     window.onbeforeunload = (e) => {
       // 退出房间
        this.sdk.quitRoom(function(){
-        alert('退出房间成功')
+//         this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
         this.sdk.closeSpeaker()
         return this.sdk.logout(this.logoutSuccess, this.logoutError)
-      }.bind(this), function (err) {console.log(err);alert('退出房间失败', err)})
+      }.bind(this), function (err) {console.log(err)})
     }
     window.onunload = () => {
       // 退出房间
@@ -260,6 +260,8 @@ export default {
       console.log('初始化失败',data)
     },
     joinSuccess (data) {
+      // 发送请求 加入房间成功
+//      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '加入房间'})
       console.log('加入房间成功')
       // 打开扬声器
       this.openSpeaker()
@@ -433,6 +435,7 @@ export default {
             this.sdk.openMic(ILiveDeviceList.devices[0].id)
             this.myRole = 2
             this.heartbeat(this.roomCode)
+//            this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '上麦'})
             // 发送群消息
             let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '2055')
             this.sdk.sendGroupMessage(message,this.msgSendSuccess,this.enterMsgError)
@@ -455,6 +458,7 @@ export default {
       this.sdk.changeRole('Guest', this.closeMicSuccess, this.applyMicrophoneError)
     },
     closeMicSuccess () {
+//      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '下麦'})
       this.sdk.closeCamera()
 //      this.memberVideo[this.mySelfRenderVideoIndex].freeRender()
       let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '2056')
