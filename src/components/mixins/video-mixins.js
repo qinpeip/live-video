@@ -143,7 +143,7 @@ export default {
           setInterval(() => {
             this.GetRoomMember(roomCode)
             this.heartbeat(roomCode)
-          }, 1000*60)
+          }, 5000)
         }
       })
     },
