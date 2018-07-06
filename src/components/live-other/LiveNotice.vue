@@ -51,6 +51,13 @@
     <div v-else style="height: 100%;">
       <liveVideo></liveVideo>
     </div>
+    <div id="promDiv" style="background:rgba(0,0,0,.8);width:100%;height:100%;position:absolute;top:0;right:0;left:0;bottom:0;margin:auto;z-index:9999;display:none">
+
+          <p style="width:40%;height:90%;margin:auto;margin-top:2%">
+          <img src="../../assets/prompt.png" style="height:100%;width:100%;margin-top:20px;margin-bottom:20px;margin:0 auto">
+          </p>
+
+    </div>
   </div>
 </template>
 
