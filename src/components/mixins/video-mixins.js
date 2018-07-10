@@ -34,43 +34,16 @@ export default {
           }
         }
       }
-      // let offsetWidth = ele.offsetWidth
-      // if (offsetWidth <= this.$refs.videoMain.$el.offsetWidth) {
-      //   this.isShowFull = true
-      //   this.requestFullScreen(ele)
-      // }else if (offsetWidth > this.$refs.videoMain.$el.offsetWidth) {
-      //   this.isShowFull = false
-      //   this.exitFullscreen(ele)
-      // }
     },
     // 进入全屏
     requestFullScreen(ele) {
-      // if (ele.requestFullscreen) {
-      //   ele.requestFullscreen()
-      // }
-      //FireFox
-      // else if (ele.mozRequestFullScreen) {
-      //   ele.mozRequestFullScreen()
-      // }
-      //Chrome等
-      // else if (ele.webkitRequestFullScreen) {
-      //   ele.webkitRequestFullScreen()
-      // }
-      //IE11
-      // else if (ele.msRequestFullscreen) {
-      //   ele.msRequestFullscreen()
-      // }
-      // else {
-      //   bindClass(ele, 'showFull')
-      //   var WshShell = new ActiveXObject('WScript.Shell')
-      //   WshShell.SendKeys('{F11}')
-      // }
       this.shoHidden = false
       ele.style.position = 'fixed'
       ele.style.left = '0'
       ele.style.top = '0'
       ele.style.width = '100%'
       ele.style.zIndex = '20'
+      window.parent.postMessage('进入全屏', '*')
 },
     //退出全屏
     exitFullscreen(ele) {
@@ -82,6 +55,7 @@ export default {
       ele.style.width = '100%'
       ele.style.zIndex = '0'
       this.shoHidden = true
+      window.parent.postMessage('退出全屏', '*')
   // var de = document
   // if (document.exitFullscreen) {
   //   document.exitFullscreen()

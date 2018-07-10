@@ -194,6 +194,9 @@ export default {
   mounted () {
     this.$nextTick(function () {
       this.sdkInit()
+      window.addEventListener('message', e => {
+        console.log('接收到了主页面的请求')
+      })
     })
   },
   methods: {
