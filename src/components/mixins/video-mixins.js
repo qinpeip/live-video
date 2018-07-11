@@ -140,6 +140,13 @@ export default {
       this.$ajax('/live/GetNotice').then(res => {
         this.notice = res.data
       })
+    },
+    logoutRoom (fn) {
+      this.$ajax.post('live/ReportMemId', {token: 'dakenghou', roomnum: this.roomCode, role: this.myRole,operate: 1, id: 'dakenghou'}).then(res => {
+        if (res.errorcode == 0) {
+          fn&&fn()
+        }
+      })
     }
 }
 }

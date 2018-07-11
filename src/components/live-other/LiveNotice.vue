@@ -49,7 +49,7 @@
       </el-row>
     </div>
     <div v-else style="height: 100%;">
-      <liveVideo></liveVideo>
+      <liveVideo @togglePage="togglePage"></liveVideo>
     </div>
     <div id="promDiv" style="background:rgba(0,0,0,.8);width:100%;height:100%;position:absolute;top:0;right:0;left:0;bottom:0;margin:auto;z-index:9999;display:none">
 
@@ -76,6 +76,9 @@
       this.getNoticeList(1);
     },
     methods:{
+      togglePage () {
+        this.showLiveVideo = true
+      },
       getNoticeList(currentPage) {
         this.loading = true;
         this.$ajax

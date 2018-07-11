@@ -87,10 +87,6 @@
                   <!--申 请 上 麦-->
                   <!--<i class="iconfont icon-maikefeng"></i>-->
                 <!--</el-button>-->
-                <!--<el-button type="primary" size="small" @click="logonOut" circle>-->
-                   <!--退出-->
-                  <!--<i class="iconfont icon-52jingyin"></i>-->
-                <!--</el-button>-->
                 <el-button type="primary" size="small" @click="downMicrophone" circle>
                   下 麦
                   <i class="iconfont icon-maikefeng-jingyin-tianchongsvg"></i>
@@ -98,6 +94,10 @@
                 <el-button type="primary" size="small" @click="toggleSound" circle>
                   {{soundModel}}
                   <i class="iconfont icon-52jingyin"></i>
+                </el-button>
+                <el-button type="danger" size="small" @click="logonOut" circle :disabled="!isJoinSuccess">
+                  退出
+                  <i class="iconfont icon-tuichu"></i>
                 </el-button>
 
                 <!--<el-button type="primary" size="small" @click="openSpeaker">-->
@@ -169,7 +169,8 @@ export default {
       loginCode: '',
       roomCode: '',
       roomMembers: {}, // 缓存已经获取到的用户名
-      myRole: 0 // 角色编码
+      myRole: 0, // 角色编码
+      isJoinSuccess: false
     }
   },
   mixins: [videoMixins],
@@ -240,10 +241,19 @@ export default {
 
           this.sdk.setMessageListener(this.listenerMsg)
 
+          // 设备插拔监听, 用户插拔耳机后重新开启扬声器
+          this.sdk.setDeviceDetectCallback(this.deviceDetectCallback)
+
           // 直接加入不走登陆
 //          this.sdk.joinRoom(this.roomCode, this.E_iLiveAuthBits.AuthBit_Guest, 'Guest', this.joinSuccess, this.joinError)
         }
       })
+    },
+    // 用户插拔设备以后
+    deviceDetectCallback () {
+      this.soundModel = '开 启 音 量'
+      this.toggleSound() // 重新开启音量
+      this.myRole === 2 && this.applyMicrophoneSuccess() // 判断用户角色是否为上麦用户, 如果为2的话就开启麦克风和摄像头
     },
     initMessage (type, text) {
       // 初始化消息
@@ -264,6 +274,7 @@ export default {
       console.log('初始化失败',data)
     },
     joinSuccess (data) {
+      this.isJoinSuccess = true
       // 发送请求 加入房间成功
 //      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '加入房间'})
       console.log('加入房间成功')
@@ -314,7 +325,9 @@ export default {
       console.log('登陆失败', data)
     },
     logoutSuccess (data) {
-      console.log(this.sdk);
+      this.logoutRoom(_ => {
+        this.$emit('togglePage')// 给父组件发送请求, 切换页面
+      })
       this.sdk.unInit()
     },
     logoutError (data) {
@@ -445,6 +458,12 @@ export default {
             this.sdk.sendGroupMessage(message,this.msgSendSuccess,this.enterMsgError)
             let obj = this.members.forEach(item => item.code == this.loginCode)
             obj && (obj.role = 2)
+            // 获取摄像头
+            let ILiveCameraList = this.sdk.getCameraList()
+            if (ILiveCameraList.code === 0) {
+              // 打开摄像头
+              this.sdk.openCamera(ILiveCameraList.devices[0].id)
+            }
              //关闭麦克风
 //            this.sdk.closeMic()
           } else {
@@ -463,6 +482,7 @@ export default {
     },
     closeMicSuccess () {
 //      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '下麦'})
+      this.sdk.closeMic()
       this.sdk.closeCamera()
 //      this.memberVideo[this.mySelfRenderVideoIndex].freeRender()
       let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '2056')
@@ -495,11 +515,10 @@ export default {
       this.$refs.chatContent.scrollTop = this.$refs.chatContent.scrollHeight
     },
     logonOut () {
-      alert('退出开始')
+      if (!this.isJoinSuccess) return false
       this.sdk.quitRoom(function(){
-        alert('退出房间成功')
         this.sdk.closeSpeaker()
-        return this.sdk.logout(this.logoutSuccess, this.logoutError)
+         this.sdk.logout(this.logoutSuccess, this.logoutError)
       }.bind(this), function (err) {alert('退出房间失败', err)})
     }
   },
@@ -689,7 +708,7 @@ export default {
   }
   .el-button {
     display: block;
-    margin: 25px auto;
+    margin: 12px auto;
   }
   p {
     padding-top: 5px;
