@@ -11,23 +11,23 @@
         <el-table :data="master" border style="width: 96%;margin: 5px 0 0 2px" class="member-table">
           <el-table-column prop="id" label="当前主播" align="center" style="background-color:red"></el-table-column>
         </el-table>
-        <div class="member">
-          <div class="member-header">当前听众</div>
-          <ul>
-            <li v-for="(item, index) in members" :key="index">
-              <el-tooltip class="item" effect="dark" :content="item.id" :disabled="item.id.length < 10" placement="top">
-                <div class="fl">{{item.id}}</div>
-              </el-tooltip>
-              <label class="fr">
-                <i class="iconfont icon-xinhao" style="font-size: 20px; color: green" v-if="item.role==2"></i>
-                <i class="iconfont icon-xinhao" style="font-size: 20px;" v-if="item.role==0"></i>
-              </label>
-            </li>
-          </ul>
-        </div>
+        <!--<div class="member">-->
+          <!--<div class="member-header">当前听众</div>-->
+          <!--<ul>-->
+            <!--<li v-for="(item, index) in members" :key="index">-->
+              <!--<el-tooltip class="item" effect="dark" :content="item.id" :disabled="item.id.length < 10" placement="top">-->
+                <!--<div class="fl">{{item.id}}</div>-->
+              <!--</el-tooltip>-->
+              <!--<label class="fr">-->
+                <!--<i class="iconfont icon-xinhao" style="font-size: 20px; color: green" v-if="item.role==2"></i>-->
+                <!--<i class="iconfont icon-xinhao" style="font-size: 20px;" v-if="item.role==0"></i>-->
+              <!--</label>-->
+            <!--</li>-->
+          <!--</ul>-->
+        <!--</div>-->
       </el-aside>
       <el-container style="width: 100px;">
-        <el-main style="height: calc(100% - 200px); width: 100%" ref="videoMain">
+        <el-main style="height: calc(100% - 230px); width: 100%" ref="videoMain">
           <div class="master-video" ref="videoContainer" v-show="!showShareVideo">
             <div class="mask-master" @dblclick="showFull"></div>
             <object id="render0" classid="CLSID:1EA15A99-7F53-4B6F-8947-B57A0729918E" width="100%"
@@ -53,7 +53,7 @@
             </div>
           </div>
         </el-main>
-        <el-footer style="height: 200px">
+        <el-footer style="height: 230px">
           <div class="video-footer">
             <el-row class="clearfix">
               <el-col :span="22">
@@ -83,10 +83,10 @@
               </el-col>
               <el-col :span="2" class="cz" style="height: 100%;">
                 <h1>操作</h1>
-                <!--<el-button type="primary" size="small" @click="applyMicrophone">-->
-                  <!--申 请 上 麦-->
-                  <!--<i class="iconfont icon-maikefeng"></i>-->
-                <!--</el-button>-->
+                <el-button type="primary" size="small" @click="userApplyMicrophone" circle>
+                  申 请 上 麦
+                  <i class="iconfont icon-maikefeng"></i>
+                </el-button>
                 <el-button type="primary" size="small" @click="downMicrophone" circle>
                   下 麦
                   <i class="iconfont icon-maikefeng-jingyin-tianchongsvg"></i>
@@ -99,11 +99,6 @@
                   退出
                   <i class="iconfont icon-tuichu"></i>
                 </el-button>
-
-                <!--<el-button type="primary" size="small" @click="openSpeaker">-->
-                  <!--打开扬声器-->
-                  <!--<i class="iconfont icon-52jingyin"></i>-->
-                <!--</el-button>-->
               </el-col>
             </el-row>
           </div>
@@ -178,7 +173,7 @@ export default {
     window.onbeforeunload = (e) => {
       // 退出房间
        this.sdk.quitRoom(function(){
-//         this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
+         this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
         this.sdk.closeSpeaker()
         return this.sdk.logout(this.logoutSuccess, this.logoutError)
       }.bind(this), function (err) {console.log(err)})
@@ -276,7 +271,7 @@ export default {
     joinSuccess (data) {
       this.isJoinSuccess = true
       // 发送请求 加入房间成功
-//      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '加入房间'})
+      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '加入房间'})
       console.log('加入房间成功')
       // 打开扬声器
       this.openSpeaker()
@@ -384,6 +379,15 @@ export default {
           	case '413':
           	this.downMicrophone()
           	break;
+            case '3002':
+              this.$message({
+                type: 'info',
+                message: '主播拒绝了您的申请'
+              })
+              break;
+            case '3001':
+              this.applyMicrophone()
+              break;
           }
         }
       })
@@ -438,7 +442,13 @@ export default {
       this.autoShowBottom()
       this.selfMessage = ''
     },
-    enterMsgError () {},
+    enterMsgError (data) {
+    },
+    // 用户申请上麦
+    userApplyMicrophone () {
+      let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '3000')
+      this.sdk.sendC2CMessage(this.master[0].code,message,function (){},this.enterMsgError)
+    },
     // 上麦
     applyMicrophone () {
         this.sdk.changeRole('LiveGuest', this.applyMicrophoneSuccess, this.applyMicrophoneError)
@@ -452,7 +462,7 @@ export default {
             this.sdk.openMic(ILiveDeviceList.devices[0].id)
             this.myRole = 2
             this.heartbeat(this.roomCode)
-//            this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '上麦'})
+            this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '上麦'})
             // 发送群消息
             let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '2055')
             this.sdk.sendGroupMessage(message,this.msgSendSuccess,this.enterMsgError)
@@ -481,7 +491,7 @@ export default {
       this.sdk.changeRole('Guest', this.closeMicSuccess, this.applyMicrophoneError)
     },
     closeMicSuccess () {
-//      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '下麦'})
+      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '下麦'})
       this.sdk.closeMic()
       this.sdk.closeCamera()
 //      this.memberVideo[this.mySelfRenderVideoIndex].freeRender()
@@ -708,7 +718,7 @@ export default {
   }
   .el-button {
     display: block;
-    margin: 12px auto;
+    margin: 7px auto;
   }
   p {
     padding-top: 5px;

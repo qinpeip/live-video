@@ -6,7 +6,10 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  errorCaptured (err, vm, info) {
+    console.log('出错了', err, vm, info)
+  }
 }
 </script>
 
