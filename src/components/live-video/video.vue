@@ -1,6 +1,6 @@
 ﻿<template>
 <div class="main-body">
-  <el-container style="min-width:1146px; max-width: 1600px;padding-bottom: 20px;margin: 0 auto">
+  <el-container style="min-width:1106px; max-width: 1600px;padding-bottom: 20px;margin: 0 auto">
     <el-header>
       <div class="walk-word" v-if="shoHidden">
         直播公告: {{notice}}
@@ -11,20 +11,20 @@
         <el-table :data="master" border style="width: 96%;margin: 5px 0 0 2px" class="member-table">
           <el-table-column prop="id" label="当前主播" align="center" style="background-color:red"></el-table-column>
         </el-table>
-        <div class="member">
-          <div class="member-header">当前听众</div>
-          <ul>
-            <li v-for="(item, index) in members" :key="index">
-              <el-tooltip class="item" effect="dark" :content="item.id" :disabled="item.id.length < 10" placement="top">
-                <div class="fl">{{item.id}}</div>
-              </el-tooltip>
-              <label class="fr">
-                <i class="iconfont icon-xinhao" style="font-size: 20px; color: green" v-if="item.role==2"></i>
-                <i class="iconfont icon-xinhao" style="font-size: 20px;" v-if="item.role==0"></i>
-              </label>
-            </li>
-          </ul>
-        </div>
+        <!--<div class="member">-->
+          <!--<div class="member-header">当前听众</div>-->
+          <!--<ul>-->
+            <!--<li v-for="(item, index) in members" :key="index">-->
+              <!--<el-tooltip class="item" effect="dark" :content="item.id" :disabled="item.id.length < 10" placement="top">-->
+                <!--<div class="fl">{{item.id}}</div>-->
+              <!--</el-tooltip>-->
+              <!--<label class="fr">-->
+                <!--<i class="iconfont icon-xinhao" style="font-size: 20px; color: green" v-if="item.role==2"></i>-->
+                <!--<i class="iconfont icon-xinhao" style="font-size: 20px;" v-if="item.role==0"></i>-->
+              <!--</label>-->
+            <!--</li>-->
+          <!--</ul>-->
+        <!--</div>-->
       </el-aside>
       <el-container style="width: 100px;">
         <el-main style="height: calc(100% - 230px); width: 100%" ref="videoMain">
@@ -83,10 +83,10 @@
               </el-col>
               <el-col :span="2" class="cz" style="height: 100%;">
                 <h1>操作</h1>
-                <!--<el-button type="primary" size="small" @click="userApplyMicrophone" circle>-->
-                  <!--申 请 上 麦-->
-                  <!--<i class="iconfont icon-maikefeng"></i>-->
-                <!--</el-button>-->
+                <el-button type="primary" size="small" @click="userApplyMicrophone" circle v-if="IsAllowChat">
+                  申 请 上 麦
+                  <i class="iconfont icon-maikefeng"></i>
+                </el-button>
                 <el-button type="primary" size="small" @click="downMicrophone" circle>
                   下 麦
                   <i class="iconfont icon-maikefeng-jingyin-tianchongsvg"></i>
@@ -146,6 +146,7 @@ import videoMixins from '../mixins/video-mixins'
 export default {
   data () {
     return {
+      IsAllowChat: false,
       shoHidden: true,
       notice: '',
       master: [],
@@ -320,6 +321,7 @@ export default {
       console.log('登陆失败', data)
     },
     logoutSuccess (data) {
+      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
       this.logoutRoom(_ => {
         this.$emit('togglePage')// 给父组件发送请求, 切换页面
       })

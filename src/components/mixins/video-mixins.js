@@ -94,9 +94,11 @@ export default {
     getRoomCode () {
       this.$ajax.post('/live/GetRoomList').then(res => {
         if (res.data.errorCode == 0) {
-          var roomCode = res.data.data.rooms[0] ? res.data.data.rooms[0].info.roomnum : ''
-
+          console.log(res.data.data.rooms[0].info.IsAllowChat)
+          let roomCode = res.data.data.rooms[0] ? res.data.data.rooms[0].info.roomnum : ''
+          let IsAllowChat = res.data.data.rooms[0] ? res.data.data.rooms[0].info.IsAllowChat : ''
           this.roomCode = roomCode
+          this.IsAllowChat = IsAllowChat
 
           this.ReportMemId(roomCode)
 
