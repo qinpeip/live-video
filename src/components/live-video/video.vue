@@ -174,7 +174,7 @@ export default {
     window.onbeforeunload = (e) => {
       // 退出房间
        this.sdk.quitRoom(function(){
-         this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
+         this.$ajax.post('/live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
         this.sdk.closeSpeaker()
         return this.sdk.logout(this.logoutSuccess, this.logoutError)
       }.bind(this), function (err) {console.log(err)})
@@ -272,7 +272,7 @@ export default {
     joinSuccess (data) {
       this.isJoinSuccess = true
       // 发送请求 加入房间成功
-      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '加入房间'})
+      this.$ajax.post('/live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '加入房间'})
       console.log('加入房间成功')
       // 打开扬声器
       this.openSpeaker()
@@ -321,7 +321,7 @@ export default {
       console.log('登陆失败', data)
     },
     logoutSuccess (data) {
-      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
+      this.$ajax.post('/live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '退出房间'})
       this.logoutRoom(_ => {
         this.$emit('togglePage')// 给父组件发送请求, 切换页面
       })
@@ -450,6 +450,7 @@ export default {
     userApplyMicrophone () {
       let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '3000')
       this.sdk.sendC2CMessage(this.master[0].code,message,function (){},this.enterMsgError)
+      this.$ajax.post('/live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '申请上麦'})
     },
     // 上麦
     applyMicrophone () {
@@ -464,7 +465,7 @@ export default {
             this.sdk.openMic(ILiveDeviceList.devices[0].id)
             this.myRole = 2
             this.heartbeat(this.roomCode)
-            this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '上麦'})
+            this.$ajax.post('/live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '上麦'})
             // 发送群消息
             let message = this.initMessage(this.E_iLiveMessageElemType.CUSTOM, '2055')
             this.sdk.sendGroupMessage(message,this.msgSendSuccess,this.enterMsgError)
@@ -493,7 +494,7 @@ export default {
       this.sdk.changeRole('Guest', this.closeMicSuccess, this.applyMicrophoneError)
     },
     closeMicSuccess () {
-      this.$ajax.post('live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '下麦'})
+      this.$ajax.post('/live/InsertOperateRecord', {roomNumber: this.roomCode, directions: '下麦'})
       this.sdk.closeMic()
       this.sdk.closeCamera()
 //      this.memberVideo[this.mySelfRenderVideoIndex].freeRender()
