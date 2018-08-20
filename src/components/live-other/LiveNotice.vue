@@ -31,7 +31,11 @@
                 <el-button type="success" v-if="scope.row.LiveStatus==40" round size="mini"
                            @click="jumpLiveVideo">进入直播间
                 </el-button>
-
+                <el-button @click="subscribe(scope.row.CurrentMember == scope.row.MaxMember)" type="primary"
+                           v-if="scope.row.LiveStatus == 10 && scope.row.IsSubscribe" size="mini" round
+                            :disabled="scope.row.CurrentMember == scope.row.MaxMember">
+                    {{scope.row.CurrentMember == scope.row.MaxMember ? "预约已满" : "预约"}}
+                </el-button>
                 <!--<el-tag v-if="!scope.row.IsEnd"  type="success" style="cursor: pointer;margin-left:40px">进入直播间</el-tag>-->
               </template>
             </el-table-column>
@@ -69,11 +73,14 @@
       return {
         liveNoticeList: [],
         total:0,
-        showLiveVideo: true
+        showLiveVideo: true,
+        loading:false
       }
     },
     created() {
-      this.getNoticeList(1);
+      this.$ajax.post("/live/login").then(res => {
+        this.getNoticeList(1);
+      })
     },
     methods:{
       togglePage () {
@@ -93,14 +100,40 @@
         this.getNoticeList(currentPage);
       },
       jumpLiveVideo() {
-        this.showLiveVideo = false
+        this.$ajax.post("/live/IsReservationUser").then(res => {
+         if(res.data.data){
+           this.showLiveVideo = false
+
+           let href = window.location.href
+           var iTop = window.screen.height; //获得窗口的垂直位置;
+           var iLeft = window.screen.width; //获得窗口的水平位置;
+         }
+         else{
+           this.$message.error('抱歉，该直播需要提前预约才可参与！');
+         }
+        })
+        /*this.showLiveVideo = false
 
         let href = window.location.href
         var iTop = window.screen.height; //获得窗口的垂直位置;
-        var iLeft = window.screen.width; //获得窗口的水平位置;
+        var iLeft = window.screen.width; //获得窗口的水平位置;*/
 //        this.$router.push({path: '/live-video'})
 //        window.open(href.replace('#/live-notice','#/live-video?r='+Math.random()), '_href', 'width='+iLeft+', height='+iTop+', toolbar=no, menubar=no, scrollbars=yes, resizable=yes, location=no, status=no,left=0,top=0', false)
 
+      },
+      subscribe(isFull){
+        if(isFull) return false;
+        this.$ajax.post("/live/SubscribeUser").then(res=>{
+          if(res.data.errorCode == 0){
+            this.$message({
+              message:"恭喜您预约成功！",
+              type:"success"
+            });
+          }
+          else if(!res.data.success){
+            this.$message.error(res.data.message);
+          }
+        });
       }
     },
     components: {
